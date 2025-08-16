@@ -7,16 +7,19 @@ A comprehensive e-commerce platform built using Spring Boot microservices archit
 This project implements a microservices-based e-commerce platform with the following components:
 
 ### Infrastructure Services
+
 - **Service Discovery** - Eureka server for service registration and discovery
 - **Config Server** - Centralized configuration management
 - **API Gateway** - Single entry point for all client requests
 
 ### Business Services
+
 - **User Service** - User management, authentication, and authorization
 - **Product Service** - Product catalog and inventory management
 - **Order Service** - Order processing and management
 
 ### Common Module
+
 - Shared utilities, DTOs, and common configurations
 
 ## 🚀 Technology Stack
@@ -56,12 +59,14 @@ ecommerce-microservices/
 ## 🚀 Getting Started
 
 ### 1. Clone the Repository
+
 ```bash
 git clone <your-repo-url>
 cd ecommerce-microservices
 ```
 
 ### 2. Start Infrastructure Services
+
 ```bash
 # Start databases using Docker
 docker-compose up -d postgres mongo
@@ -78,6 +83,7 @@ mvn spring-boot:run
 ```
 
 ### 3. Start Business Services
+
 ```bash
 # Start business services in separate terminals
 cd services/user-service
@@ -101,12 +107,14 @@ Each service has its own `application.properties` file. Key configurations inclu
 ## 📊 API Endpoints
 
 ### User Service
+
 - `POST /api/users` - Create user
 - `GET /api/users/{id}` - Get user by ID
 - `PUT /api/users/{id}` - Update user
 - `DELETE /api/users/{id}` - Delete user
 
 ### Product Service
+
 - `GET /api/products` - Get all products
 - `GET /api/products/{id}` - Get product by ID
 - `POST /api/products` - Create product
@@ -114,6 +122,7 @@ Each service has its own `application.properties` file. Key configurations inclu
 - `DELETE /api/products/{id}` - Delete product
 
 ### Order Service
+
 - `POST /api/orders` - Create order
 - `GET /api/orders/{id}` - Get order by ID
 - `GET /api/orders/user/{userId}` - Get orders by user
