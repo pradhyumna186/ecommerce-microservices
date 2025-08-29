@@ -14,7 +14,7 @@
 	</parent>
 
 	<artifactId>user-service</artifactId>
-	<n>User Service</n>
+	<name>User Service</name>
 	<description>User Management and Authentication Service</description>
 
 	<dependencies>

@@ -14,7 +14,7 @@
 	</parent>
 
 	<artifactId>common</artifactId>
-	<n>Common</n>
+	<name>Common</name>
 	<description>Common shared components for all microservices</description>
 
 	<dependencies>

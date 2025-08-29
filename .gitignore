@@ -116,3 +116,7 @@ yarn-error.log*
 .Trashes
 ehthumbs.db
 Thumbs.db
+
+# Claude AI files
+.claude/
+project_analysis.txt

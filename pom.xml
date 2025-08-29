@@ -18,14 +18,14 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
         <!-- Spring Boot and Cloud Versions -->
-        <spring-boot.version>3.5.4</spring-boot.version>
-        <spring-cloud.version>2024.0.0</spring-cloud.version>
+        <spring-boot.version>3.5.5</spring-boot.version>
+        <spring-cloud.version>2025.0.0</spring-cloud.version>
 
         <!-- Database Versions -->
-        <postgresql.version>42.7.4</postgresql.version>
+        <postgresql.version>42.7.7</postgresql.version>
 
         <!-- Security & JWT Versions -->
-        <jjwt.version>0.12.6</jjwt.version>
+        <jjwt.version>0.13.0</jjwt.version>
 
         <!-- Resilience4j Version -->
         <resilience4j.version>2.2.0</resilience4j.version>
