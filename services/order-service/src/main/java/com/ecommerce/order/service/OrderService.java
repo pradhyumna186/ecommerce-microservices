@@ -46,7 +46,7 @@ public class OrderService {
         for (OrderItemDto itemDto : orderDto.getOrderItems()) {
             ProductClient.ProductInfo productInfo = productClient.getProductInfo(itemDto.getProductId());
             
-            if (productInfo == null || !productInfo.getActive()) {
+            if (productInfo == null || !productInfo.isActive()) {
                 throw new BadRequestException("Product with ID " + itemDto.getProductId() + " is not available");
             }
             

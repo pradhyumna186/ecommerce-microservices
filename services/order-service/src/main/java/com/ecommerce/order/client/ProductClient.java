@@ -5,6 +5,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 
 import java.math.BigDecimal;
+import java.util.Map;
 
 @Component
 public class ProductClient {
@@ -17,7 +18,12 @@ public class ProductClient {
     public ProductInfo getProductInfo(Long productId) {
         String url = PRODUCT_SERVICE_URL + "/api/products/" + productId;
         try {
-            return restTemplate.getForObject(url, ProductInfo.class);
+            ApiResponse response = restTemplate.getForObject(url, ApiResponse.class);
+            if (response != null && response.isSuccess() && response.getData() != null) {
+                // Convert the data map to ProductInfo
+                return convertToProductInfo(response.getData());
+            }
+            return null;
         } catch (Exception e) {
             throw new RuntimeException("Failed to fetch product information for product ID: " + productId);
         }
@@ -26,7 +32,11 @@ public class ProductClient {
     public boolean checkProductAvailability(Long productId, Integer quantity) {
         String url = PRODUCT_SERVICE_URL + "/api/products/" + productId + "/availability?quantity=" + quantity;
         try {
-            return restTemplate.getForObject(url, Boolean.class);
+            ApiResponse response = restTemplate.getForObject(url, ApiResponse.class);
+            if (response != null && response.isSuccess() && response.getData() != null) {
+                return (Boolean) response.getData();
+            }
+            return false;
         } catch (Exception e) {
             return false;
         }
@@ -37,7 +47,7 @@ public class ProductClient {
         private String name;
         private BigDecimal price;
         private Integer stockQuantity;
-        private Boolean active;
+        private boolean active;
         
         public ProductInfo() {}
         
@@ -73,12 +83,67 @@ public class ProductClient {
             this.stockQuantity = stockQuantity;
         }
         
-        public Boolean getActive() {
+        public boolean isActive() {
             return active;
         }
         
-        public void setActive(Boolean active) {
+        public void setActive(boolean active) {
             this.active = active;
+        }
+    }
+    
+    private ProductInfo convertToProductInfo(Object data) {
+        if (data instanceof Map) {
+            Map<String, Object> dataMap = (Map<String, Object>) data;
+            ProductInfo productInfo = new ProductInfo();
+            productInfo.setId(((Number) dataMap.get("id")).longValue());
+            productInfo.setName((String) dataMap.get("name"));
+            productInfo.setPrice(new BigDecimal(dataMap.get("price").toString()));
+            productInfo.setStockQuantity((Integer) dataMap.get("stockQuantity"));
+            productInfo.setActive((Boolean) dataMap.get("active"));
+            return productInfo;
+        }
+        return null;
+    }
+    
+    public static class ApiResponse {
+        private boolean success;
+        private String message;
+        private Object data;
+        private String timestamp;
+        
+        public ApiResponse() {}
+        
+        public boolean isSuccess() {
+            return success;
+        }
+        
+        public void setSuccess(boolean success) {
+            this.success = success;
+        }
+        
+        public String getMessage() {
+            return message;
+        }
+        
+        public void setMessage(String message) {
+            this.message = message;
+        }
+        
+        public Object getData() {
+            return data;
+        }
+        
+        public void setData(Object data) {
+            this.data = data;
+        }
+        
+        public String getTimestamp() {
+            return timestamp;
+        }
+        
+        public void setTimestamp(String timestamp) {
+            this.timestamp = timestamp;
         }
     }
 }
