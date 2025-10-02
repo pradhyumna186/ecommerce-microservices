@@ -1,5 +1,6 @@
 package com.ecommerce.product.entity;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 
@@ -27,6 +28,7 @@ public class Category {
     private LocalDateTime updatedAt;
     
     @OneToMany(mappedBy = "category", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @JsonManagedReference
     private List<Product> products;
     
     public Category() {}

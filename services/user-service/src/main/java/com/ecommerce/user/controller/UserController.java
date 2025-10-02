@@ -3,6 +3,7 @@ package com.ecommerce.user.controller;
 import com.ecommerce.common.dto.ApiResponse;
 import com.ecommerce.user.dto.UserRegistrationDto;
 import com.ecommerce.user.dto.UserResponseDto;
+import com.ecommerce.user.dto.UserUpdateDto;
 import com.ecommerce.user.service.UserService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -50,7 +51,7 @@ public class UserController {
     @PutMapping("/{id}")
     public ResponseEntity<ApiResponse<UserResponseDto>> updateUser(
             @PathVariable Long id, 
-            @Valid @RequestBody UserRegistrationDto updateDto) {
+            @Valid @RequestBody UserUpdateDto updateDto) {
         UserResponseDto user = userService.updateUser(id, updateDto);
         return ResponseEntity.ok(ApiResponse.success("User updated successfully", user));
     }

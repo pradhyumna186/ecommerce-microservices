@@ -1,6 +1,8 @@
 package com.ecommerce.order.client;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 
@@ -13,19 +15,20 @@ public class ProductClient {
     @Autowired
     private RestTemplate restTemplate;
     
-    private static final String PRODUCT_SERVICE_URL = "http://product-service";
+    private static final String PRODUCT_SERVICE_URL = "http://product-service:8082";
+    private static final Logger LOGGER = LoggerFactory.getLogger(ProductClient.class);
     
     public ProductInfo getProductInfo(Long productId) {
         String url = PRODUCT_SERVICE_URL + "/api/products/" + productId;
         try {
             ApiResponse response = restTemplate.getForObject(url, ApiResponse.class);
-            if (response != null && response.isSuccess() && response.getData() != null) {
-                // Convert the data map to ProductInfo
-                return convertToProductInfo(response.getData());
+            if (response == null || !response.isSuccess() || response.getData() == null) {
+                return null;
             }
-            return null;
+            return convertToProductInfo(response.getData());
         } catch (Exception e) {
-            throw new RuntimeException("Failed to fetch product information for product ID: " + productId);
+            LOGGER.error("getProductInfo failed for productId {} via URL {}: {}", productId, url, e.toString());
+            return null;
         }
     }
     
@@ -33,11 +36,16 @@ public class ProductClient {
         String url = PRODUCT_SERVICE_URL + "/api/products/" + productId + "/availability?quantity=" + quantity;
         try {
             ApiResponse response = restTemplate.getForObject(url, ApiResponse.class);
-            if (response != null && response.isSuccess() && response.getData() != null) {
-                return (Boolean) response.getData();
+            if (response == null || !response.isSuccess() || response.getData() == null) {
+                return false;
             }
-            return false;
+            Object data = response.getData();
+            if (data instanceof Boolean) {
+                return (Boolean) data;
+            }
+            return Boolean.parseBoolean(String.valueOf(data));
         } catch (Exception e) {
+            LOGGER.error("checkProductAvailability failed for productId {} qty {} via URL {}: {}", productId, quantity, url, e.toString());
             return false;
         }
     }
@@ -93,17 +101,35 @@ public class ProductClient {
     }
     
     private ProductInfo convertToProductInfo(Object data) {
-        if (data instanceof Map) {
-            Map<String, Object> dataMap = (Map<String, Object>) data;
-            ProductInfo productInfo = new ProductInfo();
-            productInfo.setId(((Number) dataMap.get("id")).longValue());
-            productInfo.setName((String) dataMap.get("name"));
-            productInfo.setPrice(new BigDecimal(dataMap.get("price").toString()));
-            productInfo.setStockQuantity((Integer) dataMap.get("stockQuantity"));
-            productInfo.setActive((Boolean) dataMap.get("active"));
-            return productInfo;
+        if (!(data instanceof Map)) {
+            return null;
         }
-        return null;
+        Map<String, Object> dataMap = (Map<String, Object>) data;
+        ProductInfo productInfo = new ProductInfo();
+        Object idVal = dataMap.get("id");
+        if (idVal instanceof Number) {
+            productInfo.setId(((Number) idVal).longValue());
+        } else if (idVal != null) {
+            try { productInfo.setId(Long.parseLong(String.valueOf(idVal))); } catch (Exception ignored) {}
+        }
+        productInfo.setName((String) dataMap.get("name"));
+        Object priceVal = dataMap.get("price");
+        if (priceVal != null) {
+            productInfo.setPrice(new BigDecimal(String.valueOf(priceVal)));
+        }
+        Object stockVal = dataMap.get("stockQuantity");
+        if (stockVal instanceof Number) {
+            productInfo.setStockQuantity(((Number) stockVal).intValue());
+        } else if (stockVal != null) {
+            try { productInfo.setStockQuantity(Integer.parseInt(String.valueOf(stockVal))); } catch (Exception ignored) {}
+        }
+        Object activeVal = dataMap.get("active");
+        if (activeVal instanceof Boolean) {
+            productInfo.setActive((Boolean) activeVal);
+        } else if (activeVal != null) {
+            productInfo.setActive(Boolean.parseBoolean(String.valueOf(activeVal)));
+        }
+        return productInfo;
     }
     
     public static class ApiResponse {

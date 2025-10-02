@@ -77,6 +77,14 @@ public class OrderController {
         return ResponseEntity.ok(ApiResponse.success("Order status updated successfully", order));
     }
     
+    @PutMapping("/{id}/status")
+    public ResponseEntity<ApiResponse<OrderResponseDto>> updateOrderStatusPut(
+            @PathVariable Long id,
+            @RequestParam OrderStatus status) {
+        OrderResponseDto order = orderService.updateOrderStatus(id, status);
+        return ResponseEntity.ok(ApiResponse.success("Order status updated successfully", order));
+    }
+    
     @PatchMapping("/{id}/cancel")
     public ResponseEntity<ApiResponse<String>> cancelOrder(@PathVariable Long id) {
         orderService.cancelOrder(id);
