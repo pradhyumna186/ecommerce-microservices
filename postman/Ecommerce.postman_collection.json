@@ -1,0 +1,216 @@
+{
+  "info": {
+    "name": "E-commerce Microservices - API Gateway",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "description": "Collection to test User, Category, Product, and Order APIs via the API Gateway. Uses variables and tests to chain requests."
+  },
+  "variable": [
+    { "key": "baseUrl", "value": "http://localhost:8088" },
+    { "key": "userId", "value": "" },
+    { "key": "categoryId", "value": "" },
+    { "key": "productId", "value": "" },
+    { "key": "orderId", "value": "" },
+    { "key": "timestamp", "value": "" }
+  ],
+  "item": [
+    {
+      "name": "Setup",
+      "event": [
+        {
+          "listen": "prerequest",
+          "script": {
+            "exec": [
+              "pm.collectionVariables.set('timestamp', Date.now().toString());"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "item": []
+    },
+    {
+      "name": "User",
+      "item": [
+        {
+          "name": "Register User",
+          "request": {
+            "method": "POST",
+            "header": [ { "key": "Content-Type", "value": "application/json" } ],
+            "url": { "raw": "{{baseUrl}}/api/users/register", "host": [ "{{baseUrl}}" ], "path": ["api","users","register"] },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"firstName\": \"John\",\n  \"lastName\": \"Doe\",\n  \"email\": \"john.doe+{{timestamp}}@example.com\",\n  \"password\": \"Password123\",\n  \"confirmPassword\": \"Password123\",\n  \"phoneNumber\": \"+15550000001\"\n}"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('status 200/201', function () { pm.expect([200,201]).to.include(pm.response.code); });",
+                  "var json = pm.response.json();",
+                  "if (json && json.data && json.data.id) { pm.collectionVariables.set('userId', json.data.id); }"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "List Users",
+          "request": { "method": "GET", "url": { "raw": "{{baseUrl}}/api/users", "host": ["{{baseUrl}}"], "path": ["api","users"] } }
+        },
+        {
+          "name": "Get User By ID",
+          "request": { "method": "GET", "url": { "raw": "{{baseUrl}}/api/users/{{userId}}", "host": ["{{baseUrl}}"], "path": ["api","users","{{userId}}"] } }
+        },
+        {
+          "name": "Update User",
+          "request": {
+            "method": "PUT",
+            "header": [ { "key": "Content-Type", "value": "application/json" } ],
+            "url": { "raw": "{{baseUrl}}/api/users/{{userId}}", "host": ["{{baseUrl}}"], "path": ["api","users","{{userId}}"] },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"firstName\": \"John\",\n  \"lastName\": \"Doe\",\n  \"email\": \"john.doe+{{timestamp}}@example.com\",\n  \"password\": \"Password123\",\n  \"confirmPassword\": \"Password123\",\n  \"phoneNumber\": \"+15550000002\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Delete User",
+          "request": { "method": "DELETE", "url": { "raw": "{{baseUrl}}/api/users/{{userId}}", "host": ["{{baseUrl}}"], "path": ["api","users","{{userId}}"] } }
+        }
+      ]
+    },
+    {
+      "name": "Category",
+      "item": [
+        {
+          "name": "Create Category",
+          "request": {
+            "method": "POST",
+            "header": [ { "key": "Content-Type", "value": "application/json" } ],
+            "url": { "raw": "{{baseUrl}}/api/categories", "host": ["{{baseUrl}}"], "path": ["api","categories"] },
+            "body": { "mode": "raw", "raw": "{\n  \"name\": \"Accessories-{{timestamp}}\",\n  \"description\": \"Test category\"\n}" }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('status 200/201', function () { pm.expect([200,201]).to.include(pm.response.code); });",
+                  "var json = pm.response.json();",
+                  "if (json && json.data && json.data.id) { pm.collectionVariables.set('categoryId', json.data.id); }"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "List Categories",
+          "request": { "method": "GET", "url": { "raw": "{{baseUrl}}/api/categories", "host": ["{{baseUrl}}"], "path": ["api","categories"] } }
+        },
+        {
+          "name": "Get Category By ID",
+          "request": { "method": "GET", "url": { "raw": "{{baseUrl}}/api/categories/{{categoryId}}", "host": ["{{baseUrl}}"], "path": ["api","categories","{{categoryId}}"] } }
+        }
+      ]
+    },
+    {
+      "name": "Product",
+      "item": [
+        {
+          "name": "Create Product",
+          "request": {
+            "method": "POST",
+            "header": [ { "key": "Content-Type", "value": "application/json" } ],
+            "url": { "raw": "{{baseUrl}}/api/products", "host": ["{{baseUrl}}"], "path": ["api","products"] },
+            "body": { "mode": "raw", "raw": "{\n  \"name\": \"Mouse-{{timestamp}}\",\n  \"description\": \"Wireless mouse\",\n  \"price\": 49.99,\n  \"stockQuantity\": 100,\n  \"imageUrl\": \"https://example.com/mouse.png\",\n  \"categoryId\": {{categoryId}}\n}" }
+          },
+          "event": [
+            { "listen": "test", "script": { "type": "text/javascript", "exec": [
+              "pm.test('status 200/201', function () { pm.expect([200,201]).to.include(pm.response.code); });",
+              "var json = pm.response.json();",
+              "if (json && json.data && json.data.id) { pm.collectionVariables.set('productId', json.data.id); }"
+            ] } }
+          ]
+        },
+        {
+          "name": "List Products",
+          "request": { "method": "GET", "url": { "raw": "{{baseUrl}}/api/products?page=0&size=5&sortBy=id&sortDir=asc", "host": ["{{baseUrl}}"], "path": ["api","products"], "query": [
+            {"key":"page","value":"0"},{"key":"size","value":"5"},{"key":"sortBy","value":"id"},{"key":"sortDir","value":"asc"}
+          ] } }
+        },
+        {
+          "name": "Get Product By ID",
+          "request": { "method": "GET", "url": { "raw": "{{baseUrl}}/api/products/{{productId}}", "host": ["{{baseUrl}}"], "path": ["api","products","{{productId}}"] } }
+        },
+        {
+          "name": "Check Availability",
+          "request": { "method": "GET", "url": { "raw": "{{baseUrl}}/api/products/{{productId}}/availability?quantity=2", "host": ["{{baseUrl}}"], "path": ["api","products","{{productId}}","availability"], "query": [ {"key":"quantity","value":"2"} ] } }
+        },
+        {
+          "name": "Update Stock",
+          "request": { "method": "PATCH", "url": { "raw": "{{baseUrl}}/api/products/{{productId}}/stock?stock=150", "host": ["{{baseUrl}}"], "path": ["api","products","{{productId}}","stock"], "query": [ {"key":"stock","value":"150"} ] } }
+        },
+        {
+          "name": "Update Product",
+          "request": {
+            "method": "PUT",
+            "header": [ { "key": "Content-Type", "value": "application/json" } ],
+            "url": { "raw": "{{baseUrl}}/api/products/{{productId}}", "host": ["{{baseUrl}}"], "path": ["api","products","{{productId}}"] },
+            "body": { "mode": "raw", "raw": "{\n  \"name\": \"Mouse-Pro-{{timestamp}}\",\n  \"description\": \"Ergonomic wireless mouse\",\n  \"price\": 59.99,\n  \"stockQuantity\": 120,\n  \"imageUrl\": \"https://example.com/mouse-pro.png\",\n  \"categoryId\": {{categoryId}}\n}" }
+          }
+        },
+        {
+          "name": "Delete Product",
+          "request": { "method": "DELETE", "url": { "raw": "{{baseUrl}}/api/products/{{productId}}", "host": ["{{baseUrl}}"], "path": ["api","products","{{productId}}"] } }
+        }
+      ]
+    },
+    {
+      "name": "Order",
+      "item": [
+        {
+          "name": "Create Order",
+          "request": {
+            "method": "POST",
+            "header": [ { "key": "Content-Type", "value": "application/json" } ],
+            "url": { "raw": "{{baseUrl}}/api/orders", "host": ["{{baseUrl}}"], "path": ["api","orders"] },
+            "body": { "mode": "raw", "raw": "{\n  \"userId\": {{userId}},\n  \"orderItems\": [{\n    \"productId\": {{productId}},\n    \"quantity\": 2\n  }],\n  \"shippingAddress\": \"742 Evergreen Terrace\",\n  \"billingAddress\": \"742 Evergreen Terrace\"\n}" }
+          },
+          "event": [
+            { "listen": "test", "script": { "type": "text/javascript", "exec": [
+              "pm.test('status 200/201', function () { pm.expect([200,201]).to.include(pm.response.code); });",
+              "var json = pm.response.json();",
+              "if (json && json.data && json.data.id) { pm.collectionVariables.set('orderId', json.data.id); }"
+            ] } }
+          ]
+        },
+        {
+          "name": "Get Order By ID",
+          "request": { "method": "GET", "url": { "raw": "{{baseUrl}}/api/orders/{{orderId}}", "host": ["{{baseUrl}}"], "path": ["api","orders","{{orderId}}"] } }
+        },
+        {
+          "name": "List Orders",
+          "request": { "method": "GET", "url": { "raw": "{{baseUrl}}/api/orders", "host": ["{{baseUrl}}"], "path": ["api","orders"] } }
+        },
+        {
+          "name": "List Orders By User",
+          "request": { "method": "GET", "url": { "raw": "{{baseUrl}}/api/orders/user/{{userId}}?page=0&size=5&sortBy=createdAt&sortDir=desc", "host": ["{{baseUrl}}"], "path": ["api","orders","user","{{userId}}"], "query": [
+            {"key":"page","value":"0"},{"key":"size","value":"5"},{"key":"sortBy","value":"createdAt"},{"key":"sortDir","value":"desc"}
+          ] } }
+        },
+        {
+          "name": "Update Order Status",
+          "request": { "method": "PATCH", "url": { "raw": "{{baseUrl}}/api/orders/{{orderId}}/status?status=CONFIRMED", "host": ["{{baseUrl}}"], "path": ["api","orders","{{orderId}}","status"], "query": [ {"key":"status","value":"CONFIRMED"} ] } }
+        },
+        {
+          "name": "Cancel Order",
+          "request": { "method": "PATCH", "url": { "raw": "{{baseUrl}}/api/orders/{{orderId}}/cancel", "host": ["{{baseUrl}}"], "path": ["api","orders","{{orderId}}","cancel"] } }
+        }
+      ]
+    }
+  ]
+}
