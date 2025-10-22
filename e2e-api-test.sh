@@ -155,20 +155,3 @@ expect_success "$_FILE" "$_CODE" "Delete User" || true
 echo
 echo "Summary: PASS=$pass_count FAIL=$fail_count"
 [[ "$fail_count" -eq 0 ]]
-#!/usr/bin/env bash
-set -euo pipefail
-
-BASE="http://localhost:8088"
-CT="Content-Type: application/json"
-PYGET='import sys, json
-obj=json.load(sys.stdin)
-for key in sys.argv[1].split("."):
-    obj=obj.get(key) if isinstance(obj, dict) else None
-print(obj if obj is not None else "")'
-
-say() { printf "\n== %s ==\n" "$*"; }
-
-# 1) Users
-EMAIL="e2e.$(date +%s)@example.com"
-say "Create User"
-U_CREATE=$(curl -sS -X POST "$BASE/api/users/register" -H "$CT" -d '{"firstName":"E2E","lastName":"User","email":"'

@@ -59,6 +59,26 @@ public class UserService implements UserDetailsService {
         return convertToResponseDto(user);
     }
     
+    /**
+     * Gets user entity by email for internal use (authorization, etc.)
+     * @param email the user's email
+     * @return User entity
+     */
+    public User getUserEntityByEmail(String email) {
+        return userRepository.findByEmail(email)
+            .orElseThrow(() -> new ResourceNotFoundException("User", "email", email));
+    }
+    
+    /**
+     * Gets user entity by ID for internal use (authorization, etc.)
+     * @param id the user's ID
+     * @return User entity
+     */
+    public User getUserEntityById(Long id) {
+        return userRepository.findById(id)
+            .orElseThrow(() -> new ResourceNotFoundException("User", "id", id));
+    }
+    
     public List<UserResponseDto> getAllUsers() {
         return userRepository.findAll().stream()
             .map(this::convertToResponseDto)
